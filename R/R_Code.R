@@ -1,4 +1,5 @@
-setwd("C:\\Users\\Tali\\Documents\\study\\science\\Project\\Data")
+getwd()
+setwd("./Fire_CAL_Project")
 library(sf)
 library(tidyverse)
 library(dplyr)
@@ -23,15 +24,14 @@ gdb_project = st_read("Raw_Layers\\Project.gdb")
 project_layers = st_layers(dsn = "Raw_Layers\\Project.gdb")
 CIMIS_New = st_read("Raw_Layers\\Project.gdb", layer="CIMIS_new")
 
-
 #### Comparing between the spatial station data (CIMIS_new) and the weather station 
 #### data (Weather_data) and making a new layer which contains only the spatial 
 #### stations that have weather data
-CIMIS_clean1 = CIMIS_new[CIMIS_new$ID %in%  Weather_data$Stn.Id,]
-st_write(CIMIS_clean1, "CIMIS_clean1.shp")
-class(CIMIS_clean1)
-str(CIMIS_clean1)
-str(Burn_centroid)
+#CIMIS_clean1 = CIMIS_New[CIMIS_New$ID %in%  Weather_data$Stn.Id,]
+#st_write(CIMIS_clean1, "GIS_PROSSES\\CIMIS_clean1.shp")
+#class(CIMIS_clean1)
+#str(CIMIS_clean1)
+
 
 #### reading the gdb project of the two layers: burn areas and the clean meteorological 
 #### spatial station. Each burn area has the nearest station (determined by the FID column)
@@ -246,7 +246,7 @@ hist(tibble_Burn_weather$GIS_ACRES)
 skewness(tibble_Burn_weather$GIS_ACRES, na.rm = TRUE)
 kurtosis(tibble_Burn_weather$GIS_ACRES, na.rm = TRUE)
 
-###??????
+###Cleaning negative
 tibble_Burn_weather1 = tibble_Burn_weather %>% 
   filter(GIS_ACRES >0, na.rm=TRUE) %>% 
   filter(Avg_Air_T_C >0 , na.rm =TRUE) %>% 
@@ -257,17 +257,6 @@ tibble_Burn_weather1 = tibble_Burn_weather %>%
   filter(Tot_Precip_mm >0 , na.rm =TRUE) 
 tibble_Burn_weather1 = na.omit(tibble_Burn_weather1)  
   
-climate_model4 = glm(formula = GIS_ACRES ~ Tot_Precip_mm+
-                       Total_ETo_mm + Avg_Sol_Rad_Wsqm + Avg_Air_T_C +
-                       Avg_Rel_Hum + Avg_Wind_S_ms, 
-                     family = Gamma(link = "identity"), 
-                     data = tibble_Burn_weather1)
-climate_model2 = glm(GIS_ACRES ~ Avg_Air_T_C ,data = tibble_Burn_weather1, Gamma(link = "log"))
-climate_model2 = glm(GIS_ACRES ~ Avg_Wind_S_ms ,data = tibble_Burn_weather1, family= "Gamma")
-climate_model2 = glm(GIS_ACRES ~ Avg_Rel_Hum ,data = tibble_Burn_weather1, family= "Gamma")
-
-summary(climate_model4)
-
 
 cor(tibble_Burn_weather$GIS_ACRES, tibble_Burn_weather$Avg_Air_T_C,
     method = "kendall", use="na.or.complete") 
@@ -313,12 +302,12 @@ cor(fall$GIS_ACRES, fall$Avg_Sol_Rad_Wsqm, method = "kendall", use="na.or.comple
 
 
 ##writing for ArcGis
-shapefile = Burn_centroid
-shapefile = shapefile[,-15]
-shapefile = shapefile %>% 
-  rename(AMATC=Avg_Min_Air_Temp_C, AMAATC=Avg_Max_Air_T_C)
+#shapefile = Burn_centroid
+#shapefile = shapefile[,-15]
+#shapefile = shapefile %>% 
+ # rename(AMATC=Avg_Min_Air_Temp_C, AMAATC=Avg_Max_Air_T_C)
 
-st_write(shapefile, "sep_coords13.shp")
+#st_write(shapefile, "sep_coords13.shp")
 
 
 #load the california counties data
